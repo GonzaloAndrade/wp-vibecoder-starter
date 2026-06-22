@@ -1,0 +1,133 @@
+:root {
+	--ink: #101828;
+	--muted: #667085;
+	--accent: #3858e9;
+	--line: #e4e7ec;
+}
+
+* {
+	box-sizing: border-box;
+}
+
+html {
+	scroll-behavior: smooth;
+}
+
+body {
+	color: var(--ink);
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+	margin: 0;
+}
+
+.preview-header {
+	align-items: center;
+	display: flex;
+	justify-content: space-between;
+	margin: auto;
+	max-width: 1180px;
+	padding: 24px;
+}
+
+.preview-header > a {
+	color: var(--ink);
+	font-weight: 800;
+	text-decoration: none;
+}
+
+.preview-header nav {
+	display: flex;
+	gap: 24px;
+}
+
+.preview-header nav a {
+	color: var(--ink);
+	text-decoration: none;
+}
+
+.preview-hero {
+	background: var(--ink);
+	color: #fff;
+	padding: clamp(72px, 13vw, 160px) max(24px, calc((100vw - 1132px) / 2));
+}
+
+.preview-hero h1 {
+	font-size: clamp(3rem, 8vw, 6.5rem);
+	letter-spacing: -0.06em;
+	line-height: 0.95;
+	margin: 12px 0 28px;
+	max-width: 1000px;
+}
+
+.preview-hero > p:not(.eyebrow) {
+	color: #d0d5dd;
+	font-size: 1.3rem;
+	line-height: 1.6;
+	max-width: 700px;
+}
+
+.eyebrow {
+	color: #7f9cf5;
+	font-size: 0.8rem;
+	font-weight: 800;
+	letter-spacing: 0.12em;
+	text-transform: uppercase;
+}
+
+.button {
+	background: var(--accent);
+	border-radius: 999px;
+	color: #fff;
+	display: inline-block;
+	font-weight: 700;
+	margin-top: 20px;
+	padding: 14px 24px;
+	text-decoration: none;
+}
+
+.preview-content {
+	margin: auto;
+	max-width: 1180px;
+	padding: 100px 24px;
+}
+
+.preview-content h2 {
+	font-size: clamp(2.25rem, 5vw, 4rem);
+	letter-spacing: -0.045em;
+	line-height: 1.05;
+	max-width: 720px;
+}
+
+.cards {
+	display: grid;
+	gap: 24px;
+	grid-template-columns: repeat(3, 1fr);
+	margin-top: 52px;
+}
+
+.cards article {
+	border: 1px solid var(--line);
+	border-radius: 18px;
+	padding: 28px;
+}
+
+.cards p {
+	color: var(--muted);
+	line-height: 1.6;
+}
+
+@media (max-width: 720px) {
+	.preview-header {
+		align-items: flex-start;
+		flex-direction: column;
+		gap: 18px;
+	}
+
+	.preview-header nav {
+		flex-wrap: wrap;
+	}
+
+	.cards {
+		grid-template-columns: 1fr;
+	}
+}
+
