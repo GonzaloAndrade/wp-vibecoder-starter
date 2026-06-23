@@ -82,6 +82,11 @@ Dedicated pages must also be declared in `wp-vibecoder.json` so WP Vibecoder
 creates or updates the corresponding WordPress page during sync. Do not declare
 `Home`; it is managed separately.
 
+When the template follows WordPress hierarchy naming such as `page-contact.php`
+for slug `contact`, it does not need a `Template Name` header. Any other
+template file declared here must include a `Template Name` header so WordPress
+can assign it as a valid page template.
+
 Example:
 
 ```json

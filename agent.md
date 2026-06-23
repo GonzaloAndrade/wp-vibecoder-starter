@@ -101,6 +101,7 @@ WP Vibecoder follows a page-first architecture.
 - When creating a dedicated page, add it to `wp-vibecoder.json` under `pages` so WP Vibecoder creates or updates the WordPress page during sync.
 - Do not add `Home` to `pages`; WP Vibecoder manages the homepage separately.
 - Page declarations use lowercase URL slugs and may reference a template file.
+- A `page-{slug}.php` file is a WordPress template hierarchy file and does not need a `Template Name` header. Any other page template referenced in `wp-vibecoder.json` must include a `Template Name` header.
 
 Examples:
 

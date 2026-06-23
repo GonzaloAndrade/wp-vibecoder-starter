@@ -104,6 +104,13 @@ if command -v php >/dev/null 2>&1; then
 						fwrite(STDERR, "wp-vibecoder.json page templates must reference PHP files inside the theme folder\n");
 						exit(1);
 					}
+					if ("page-" . $page["slug"] . ".php" !== $page["template"]) {
+						$template_source = file_get_contents($argv[2] . "/" . $page["template"], false, null, 0, 8192);
+						if (false === $template_source || !preg_match("/Template Name\\s*:/i", $template_source)) {
+							fwrite(STDERR, "Custom page templates must include a Template Name header unless they use page-{slug}.php\n");
+							exit(1);
+						}
+					}
 				}
 			}
 		}
@@ -160,6 +167,12 @@ else
 						if (typeof page.template !== "string" || page.template.includes("..") || !page.template.endsWith(".php") || !fs.existsSync(path.join(themeDir, page.template))) {
 							throw new Error("wp-vibecoder.json page templates must reference PHP files inside the theme folder");
 						}
+						if (page.template !== `page-${page.slug}.php`) {
+							const templateSource = fs.readFileSync(path.join(themeDir, page.template), "utf8").slice(0, 8192);
+							if (!/Template Name\s*:/i.test(templateSource)) {
+								throw new Error("Custom page templates must include a Template Name header unless they use page-{slug}.php");
+							}
+						}
 					}
 				}
 			}
@@ -207,6 +220,11 @@ if pages is not None:
             template = page["template"]
             if not isinstance(template, str) or ".." in template or not template.endswith(".php") or not os.path.isfile(os.path.join(theme_dir, template)):
                 raise SystemExit("wp-vibecoder.json page templates must reference PHP files inside the theme folder")
+            if template != f"page-{page['slug']}.php":
+                with open(os.path.join(theme_dir, template), encoding="utf-8", errors="ignore") as template_fh:
+                    template_source = template_fh.read(8192)
+                if not re.search(r"Template Name\s*:", template_source, re.IGNORECASE):
+                    raise SystemExit("Custom page templates must include a Template Name header unless they use page-{slug}.php")
 PY
 	else
 		warn "Neither Node.js nor Python is available; JSON syntax validation was skipped."
