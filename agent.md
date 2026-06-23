@@ -10,7 +10,7 @@ This repository is a WordPress theme project synchronized by WP Vibecoder.
 - Before completing a visual homepage change, update `/preview` so it represents the delivered design closely enough for review and screenshot generation.
 - If a task does not affect the homepage visually, `/preview` does not need to change.
 - In restricted cloud environments, run all available validations and report skipped checks as warnings.
-- If Chrome or Chromium cannot generate a screenshot, keep or restore the bundled default WP Vibecoder screenshot.
+- If Chrome or Chromium cannot generate a screenshot, keep or restore the bundled default WP Vibecoder screenshot and report the exact reason screenshot generation was skipped.
 - Never modify WordPress core files.
 - Use WordPress APIs, template hierarchy, escaping functions, and enqueue APIs.
 - Use Advanced Custom Fields only when editable content explicitly requires it.
@@ -21,8 +21,7 @@ This repository is a WordPress theme project synchronized by WP Vibecoder.
 - Validate PHP syntax before completing work.
 - Perform final visual validation in a real local WordPress installation.
 - LocalWP is recommended but is not a dependency.
-- Keep the branded `theme/screenshot.png` unless the project needs a custom theme preview.
-- After an intentional preview redesign, optionally run `./scripts/generate-theme-screenshot.sh` to replace it.
+- After any visual change that affects the homepage, preview, theme branding, layout, or first-screen appearance, run `./scripts/generate-theme-screenshot.sh` before completion so `theme/screenshot.png` reflects the delivered design.
 - The WordPress theme screenshot must be a 1200×900 PNG.
 
 ## Missing Brand Content
@@ -127,7 +126,7 @@ Example `wp-vibecoder.json` page declaration:
 2. The homepage implementation is in `/theme/page-home.php`.
 3. `style.css` still contains valid `Theme Name` and `Version` headers.
 4. Release versions match across `style.css`, `functions.php`, and `wp-vibecoder.json`.
-5. `theme/screenshot.png` is a valid 1200×900 branded or project-specific preview.
+5. `theme/screenshot.png` is a valid 1200×900 PNG and was regenerated after visual changes, or screenshot generation was explicitly reported as unavailable.
 6. The assigned Home page content remains empty.
 7. No `front-page.php` or `home.php` was introduced.
 8. Every referenced function, template, script, stylesheet, image, and ACF field exists.

@@ -104,16 +104,19 @@ Do not place layouts for dedicated internal pages inside `page-home.php`.
 WordPress displays `theme/screenshot.png` in **Appearance > Themes**. The
 starter includes a professional branded WP Vibecoder screenshot at 1200×900.
 
-If a project-specific screenshot is preferred, update the static preview and
-regenerate the image from the repository root:
+After any visual change that affects the homepage, preview, theme branding,
+layout, or first-screen appearance, update the static preview and regenerate
+the screenshot from the repository root:
 
 ```bash
 ./scripts/generate-theme-screenshot.sh
 ```
 
 The script uses headless Google Chrome or Chromium and overwrites the branded
-image with a capture of `preview/index.html`. This is optional. The screenshot
-is theme metadata only; the production homepage remains `theme/page-home.php`.
+image with a capture of `preview/index.html`. If Chrome or Chromium is
+unavailable, keep or restore the bundled default screenshot and report the
+exact reason screenshot generation was skipped. The screenshot is theme
+metadata only; the production homepage remains `theme/page-home.php`.
 
 ## Development workflow
 
@@ -123,7 +126,7 @@ is theme metadata only; the production homepage remains `theme/page-home.php`.
 4. If the homepage changed visually, align `preview/` with the delivered theme before completion.
 5. Run `./scripts/validate.sh`.
 6. Run the theme in a local WordPress installation such as LocalWP.
-7. Regenerate `theme/screenshot.png` when a project-specific preview is desired.
+7. Regenerate `theme/screenshot.png` after visual changes, or report why screenshot generation was unavailable.
 8. Commit and push to GitHub.
 9. Configure the repository URL and branch in WP Vibecoder.
 10. Use **Validate Repo**, then **Sync Theme**.
