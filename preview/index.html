@@ -7,43 +7,33 @@
 	<link rel="stylesheet" href="assets/preview.css">
 </head>
 <body>
-	<header class="preview-header">
-		<a href="#">Project Name</a>
-		<nav aria-label="Primary navigation">
-			<a href="#">Overview</a>
-			<a href="#">About</a>
-			<a href="#">Services</a>
-			<a href="#">Contact</a>
-		</nav>
+	<header class="site-header">
+		<div class="site-container site-header__inner">
+			<a class="site-title" href="#">WP Vibecoder Starter</a>
+		</div>
 	</header>
 
-	<main>
-		<section class="preview-hero">
-			<p class="eyebrow">WP Vibecoder Starter</p>
-			<h1>Build the production theme in WordPress.</h1>
-			<p>This static preview is only for rapid visual experiments. Transfer approved work into the theme and validate it in a real WordPress environment.</p>
-			<a class="button" href="#content">Explore the prototype</a>
-		</section>
-
-		<section class="preview-content" id="content">
-			<p class="eyebrow">Starter workflow</p>
-			<h2>Prototype quickly. Ship the real theme.</h2>
-			<div class="cards">
-				<article>
-					<h3>Develop locally</h3>
-					<p>Codex or Claude edits the repository while WordPress provides the real runtime.</p>
-				</article>
-				<article>
-					<h3>Version in GitHub</h3>
-					<p>Review every theme change through normal Git history and branches.</p>
-				</article>
-				<article>
-					<h3>Sync safely</h3>
-					<p>WP Vibecoder validates, backs up, installs, and can roll back the theme.</p>
-				</article>
+	<main id="primary" class="site-main">
+		<section class="hero">
+			<div class="site-container hero__inner">
+				<p class="eyebrow">WP Vibecoder Starter</p>
+				<h1>WP Vibecoder Starter</h1>
+				<p>A minimal starter theme for projects synchronized with WP Vibecoder.</p>
+				<a class="button-link" href="#landing-content">Explore the site</a>
 			</div>
 		</section>
+
+		<section id="landing-content" class="site-container content-section">
+			<h2>Build the corporate homepage here.</h2>
+			<p>Codex should edit page-home.php whenever the homepage changes. Keep the WP Vibecoder Home page content empty.</p>
+		</section>
 	</main>
+
+	<footer class="site-footer">
+		<div class="site-container site-footer__inner">
+			<p>&copy; 2026. All rights reserved.</p>
+		</div>
+	</footer>
 
 	<script src="assets/preview.js"></script>
 </body>

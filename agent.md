@@ -68,13 +68,14 @@ This repository is a WordPress theme project synchronized by WP Vibecoder.
 
 ## Homepage Convention
 
-- The homepage is a real WordPress page with slug `home`.
-- WP Vibecoder creates and assigns the `Home` page as the static homepage.
+- The homepage is a real WordPress page with slug `wp-vibecoder-home`.
+- WP Vibecoder creates and assigns the `WP Vibecoder Home` page as the static homepage.
 - The homepage layout must be implemented in `theme/page-home.php`.
+- WP Vibecoder routes the managed front page to `page-home.php`; do not rely on the page slug for template loading.
 - When modifying the homepage, edit `page-home.php`.
-- Keep the Home page content editor empty.
-- The Home page exists for SEO, metadata, OpenGraph, ACF, Gutenberg compatibility, previews, revisions, and future CMS features.
-- Do not use the Home page content editor for homepage layout.
+- Keep the WP Vibecoder Home page content editor empty.
+- The WP Vibecoder Home page exists for SEO, metadata, OpenGraph, ACF, Gutenberg compatibility, previews, revisions, and future CMS features.
+- Do not use the WP Vibecoder Home page content editor for homepage layout.
 - Do not use `front-page.php`.
 - Do not place homepage layout in `index.php`.
 - Do not implement blog functionality unless explicitly requested.
@@ -101,6 +102,8 @@ WP Vibecoder follows a page-first architecture.
 - When creating a dedicated page, add it to `wp-vibecoder.json` under `pages` so WP Vibecoder creates or updates the WordPress page during sync.
 - Do not add `Home` to `pages`; WP Vibecoder manages the homepage separately.
 - Page declarations use lowercase URL slugs and may reference a template file.
+- Page declarations must not include `content` or `excerpt`; WP Vibecoder creates pages with an empty editor and preserves manually edited content.
+- Put repository-managed page layout and demo copy in `page.php` or `page-{slug}.php`, not in the WordPress page editor.
 - A `page-{slug}.php` file is a WordPress template hierarchy file and does not need a `Template Name` header. Any other page template referenced in `wp-vibecoder.json` must include a `Template Name` header.
 
 Examples:
@@ -128,7 +131,7 @@ Example `wp-vibecoder.json` page declaration:
 3. `style.css` still contains valid `Theme Name` and `Version` headers.
 4. Release versions match across `style.css`, `functions.php`, and `wp-vibecoder.json`.
 5. `theme/screenshot.png` is a valid 1200×900 PNG and was regenerated after visual changes, or screenshot generation was explicitly reported as unavailable.
-6. The assigned Home page content remains empty.
+6. The assigned WP Vibecoder Home page content remains empty.
 7. No `front-page.php` or `home.php` was introduced.
 8. Every referenced function, template, script, stylesheet, image, and ACF field exists.
 9. PHP syntax and repository validation pass with `./scripts/validate.sh`.

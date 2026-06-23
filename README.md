@@ -42,16 +42,18 @@ Do not upload the containing `wp-vibecoder-starter` folder as an extra nested di
 
 ## Homepage convention
 
-WP Vibecoder creates or reuses a WordPress page named `Home`, keeps its content
-empty, and assigns it as the static front page under **Settings > Reading**.
-The site root `/` is rendered through `theme/page-home.php`.
+WP Vibecoder creates or reuses a WordPress page named `WP Vibecoder Home` with
+the slug `wp-vibecoder-home`, keeps its content empty, and assigns it as the
+static front page under **Settings > Reading**. The site root `/` is rendered
+through `theme/page-home.php`; WP Vibecoder routes the managed front page to
+that template independently of the page slug.
 
 Codex must edit `page-home.php` for every landing-page or corporate-homepage
-change. Never build the homepage layout in the Home page content editor. Do not
-use `front-page.php`, do not put the homepage layout in `index.php`, and do not
-add `home.php` in V1.
+change. Never build the homepage layout in the WP Vibecoder Home page content
+editor. Do not use `front-page.php`, do not put the homepage layout in
+`index.php`, and do not add `home.php` in V1.
 
-The Home page supports SEO plugins, metadata, OpenGraph, ACF, Gutenberg,
+The WP Vibecoder Home page supports SEO plugins, metadata, OpenGraph, ACF, Gutenberg,
 previews, revisions, future CMS features, and WordPress `page_on_front`
 compatibility.
 
@@ -81,6 +83,12 @@ For example:
 Dedicated pages must also be declared in `wp-vibecoder.json` so WP Vibecoder
 creates or updates the corresponding WordPress page during sync. Do not declare
 `Home`; it is managed separately.
+
+Page declarations are only for page metadata: `title`, `slug`, optional
+`status`, and optional `template`. Do not include `content` or `excerpt`.
+WP Vibecoder creates pages with an empty editor and preserves manually edited
+content. Repository-managed page copy and layout belong in `page.php` or
+`page-{slug}.php`.
 
 When the template follows WordPress hierarchy naming such as `page-contact.php`
 for slug `contact`, it does not need a `Template Name` header. Any other

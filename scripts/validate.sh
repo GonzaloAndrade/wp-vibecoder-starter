@@ -91,12 +91,8 @@ if command -v php >/dev/null 2>&1; then
 					fwrite(STDERR, "wp-vibecoder.json page status must be publish, draft, or private\n");
 					exit(1);
 				}
-				if (isset($page["content"]) && !is_string($page["content"])) {
-					fwrite(STDERR, "wp-vibecoder.json page content must be a string when provided\n");
-					exit(1);
-				}
-				if (isset($page["excerpt"]) && !is_string($page["excerpt"])) {
-					fwrite(STDERR, "wp-vibecoder.json page excerpt must be a string when provided\n");
+				if (array_key_exists("content", $page) || array_key_exists("excerpt", $page)) {
+					fwrite(STDERR, "wp-vibecoder.json page declarations must not include content or excerpt\n");
 					exit(1);
 				}
 				if (!empty($page["template"])) {
@@ -157,11 +153,8 @@ else
 					if (page.status !== undefined && !["publish", "draft", "private"].includes(page.status)) {
 						throw new Error("wp-vibecoder.json page status must be publish, draft, or private");
 					}
-					if (page.content !== undefined && typeof page.content !== "string") {
-						throw new Error("wp-vibecoder.json page content must be a string when provided");
-					}
-					if (page.excerpt !== undefined && typeof page.excerpt !== "string") {
-						throw new Error("wp-vibecoder.json page excerpt must be a string when provided");
+					if (Object.prototype.hasOwnProperty.call(page, "content") || Object.prototype.hasOwnProperty.call(page, "excerpt")) {
+						throw new Error("wp-vibecoder.json page declarations must not include content or excerpt");
 					}
 					if (page.template) {
 						if (typeof page.template !== "string" || page.template.includes("..") || !page.template.endsWith(".php") || !fs.existsSync(path.join(themeDir, page.template))) {
@@ -212,10 +205,8 @@ if pages is not None:
         slugs.add(page["slug"])
         if "status" in page and page["status"] not in ("publish", "draft", "private"):
             raise SystemExit("wp-vibecoder.json page status must be publish, draft, or private")
-        if "content" in page and not isinstance(page["content"], str):
-            raise SystemExit("wp-vibecoder.json page content must be a string when provided")
-        if "excerpt" in page and not isinstance(page["excerpt"], str):
-            raise SystemExit("wp-vibecoder.json page excerpt must be a string when provided")
+        if "content" in page or "excerpt" in page:
+            raise SystemExit("wp-vibecoder.json page declarations must not include content or excerpt")
         if page.get("template"):
             template = page["template"]
             if not isinstance(template, str) or ".." in template or not template.endswith(".php") or not os.path.isfile(os.path.join(theme_dir, template)):

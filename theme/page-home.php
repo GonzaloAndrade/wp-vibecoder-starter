@@ -20,7 +20,7 @@ get_header();
 
 	<section id="landing-content" class="site-container content-section">
 		<h2><?php esc_html_e( 'Build the corporate homepage here.', 'wp-vibecoder-starter' ); ?></h2>
-		<p><?php esc_html_e( 'Codex should edit page-home.php whenever the homepage changes. Keep the assigned WordPress Home page content empty.', 'wp-vibecoder-starter' ); ?></p>
+		<p><?php esc_html_e( 'Codex should edit page-home.php whenever the homepage changes. Keep the WP Vibecoder Home page content empty.', 'wp-vibecoder-starter' ); ?></p>
 	</section>
 </main>
 
