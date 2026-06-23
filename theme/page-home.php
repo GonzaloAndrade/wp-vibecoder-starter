@@ -12,8 +12,8 @@ get_header();
 	<section class="hero">
 		<div class="site-container hero__inner">
 			<p class="eyebrow"><?php esc_html_e( 'WP Vibecoder Starter', 'wp-vibecoder-starter' ); ?></p>
-			<h1><?php echo esc_html( get_bloginfo( 'name' ) ); ?></h1>
-			<p><?php echo esc_html( get_bloginfo( 'description' ) ); ?></p>
+			<h1><?php esc_html_e( 'WP Vibecoder Starter', 'wp-vibecoder-starter' ); ?></h1>
+			<p><?php esc_html_e( 'A minimal starter theme for projects synchronized with WP Vibecoder.', 'wp-vibecoder-starter' ); ?></p>
 			<a class="button-link" href="#landing-content"><?php esc_html_e( 'Explore the site', 'wp-vibecoder-starter' ); ?></a>
 		</div>
 	</section>

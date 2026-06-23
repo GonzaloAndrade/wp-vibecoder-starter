@@ -146,6 +146,10 @@ metadata only; the production homepage remains `theme/page-home.php`.
 
 `theme/` is always authoritative. The preview is a static visual reference and
 does not replace validation in WordPress.
+Visible brand, hero, and navigation copy should be explicit in the theme files
+and mirrored in `preview/`. Avoid relying on the target WordPress site's
+`get_bloginfo()` values for first-screen copy because the static preview cannot
+know those settings.
 
 ## Validation
 

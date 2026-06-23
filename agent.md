@@ -8,6 +8,7 @@ This repository is a WordPress theme project synchronized by WP Vibecoder.
 - Use `/preview` for quick static prototypes and screenshot generation. It is never the production source.
 - During experimentation, `/preview` may temporarily differ from `/theme`.
 - Before completing a visual homepage change, update `/preview` so it represents the delivered design closely enough for review and screenshot generation.
+- Keep visible homepage/header copy in `/theme` and `/preview` textually aligned. Do not use `get_bloginfo()` for visible brand, hero, or navigation text unless `/preview` is updated to the same expected values.
 - If a task does not affect the homepage visually, `/preview` does not need to change.
 - In restricted cloud environments, run all available validations and report skipped checks as warnings.
 - If Chrome or Chromium cannot generate a screenshot, keep or restore the bundled default WP Vibecoder screenshot and report the exact reason screenshot generation was skipped.

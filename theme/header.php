@@ -19,7 +19,7 @@
 <header class="site-header">
 	<div class="site-container site-header__inner">
 		<a class="site-title" href="<?php echo esc_url( home_url( '/' ) ); ?>">
-			<?php echo esc_html( get_bloginfo( 'name' ) ); ?>
+			<?php esc_html_e( 'WP Vibecoder Starter', 'wp-vibecoder-starter' ); ?>
 		</a>
 	</div>
 </header>
