@@ -55,7 +55,59 @@ if command -v php >/dev/null 2>&1; then
 			fwrite(STDERR, "Invalid wp-vibecoder.json\n");
 			exit(1);
 		}
-	' "${CONFIG_FILE}"
+		if (isset($data["requires"]["plugins"])) {
+			if (!is_array($data["requires"]["plugins"])) {
+				fwrite(STDERR, "wp-vibecoder.json requires.plugins must be an array\n");
+				exit(1);
+			}
+			foreach ($data["requires"]["plugins"] as $plugin) {
+				if (!is_array($plugin) || empty($plugin["slug"]) || !is_string($plugin["slug"])) {
+					fwrite(STDERR, "wp-vibecoder.json plugin dependencies must be objects with a slug\n");
+					exit(1);
+				}
+			}
+		}
+		if (isset($data["pages"])) {
+			if (!is_array($data["pages"])) {
+				fwrite(STDERR, "wp-vibecoder.json pages must be an array\n");
+				exit(1);
+			}
+			$slugs = array();
+			foreach ($data["pages"] as $page) {
+				if (!is_array($page) || empty($page["title"]) || !is_string($page["title"]) || empty($page["slug"]) || !is_string($page["slug"])) {
+					fwrite(STDERR, "wp-vibecoder.json pages must be objects with title and slug\n");
+					exit(1);
+				}
+				if (!preg_match("/^[a-z0-9]+(?:-[a-z0-9]+)*$/", $page["slug"]) || "home" === $page["slug"]) {
+					fwrite(STDERR, "wp-vibecoder.json page slugs must be lowercase URL slugs and must not be home\n");
+					exit(1);
+				}
+				if (isset($slugs[$page["slug"]])) {
+					fwrite(STDERR, "wp-vibecoder.json pages must use unique slugs\n");
+					exit(1);
+				}
+				$slugs[$page["slug"]] = true;
+				if (isset($page["status"]) && !in_array($page["status"], array("publish", "draft", "private"), true)) {
+					fwrite(STDERR, "wp-vibecoder.json page status must be publish, draft, or private\n");
+					exit(1);
+				}
+				if (isset($page["content"]) && !is_string($page["content"])) {
+					fwrite(STDERR, "wp-vibecoder.json page content must be a string when provided\n");
+					exit(1);
+				}
+				if (isset($page["excerpt"]) && !is_string($page["excerpt"])) {
+					fwrite(STDERR, "wp-vibecoder.json page excerpt must be a string when provided\n");
+					exit(1);
+				}
+				if (!empty($page["template"])) {
+					if (!is_string($page["template"]) || false !== strpos($page["template"], "..") || ".php" !== substr($page["template"], -4) || !is_file($argv[2] . "/" . $page["template"])) {
+						fwrite(STDERR, "wp-vibecoder.json page templates must reference PHP files inside the theme folder\n");
+						exit(1);
+					}
+				}
+			}
+		}
+	' "${CONFIG_FILE}" "${THEME_DIR}"
 
 	while IFS= read -r -d '' file; do
 		php -l "${file}" >/dev/null || exit 1
@@ -63,10 +115,99 @@ if command -v php >/dev/null 2>&1; then
 else
 	warn "PHP CLI is unavailable; PHP lint and PHP-based checks were skipped."
 	if command -v node >/dev/null 2>&1; then
-		node -e 'JSON.parse(require("fs").readFileSync(process.argv[1], "utf8"))' "${CONFIG_FILE}" ||
+		node -e '
+			const fs = require("fs");
+			const path = require("path");
+			const data = JSON.parse(fs.readFileSync(process.argv[1], "utf8"));
+			const themeDir = process.argv[2];
+			const plugins = data && data.requires && data.requires.plugins;
+			if (plugins !== undefined) {
+				if (!Array.isArray(plugins)) {
+					throw new Error("wp-vibecoder.json requires.plugins must be an array");
+				}
+				for (const plugin of plugins) {
+					if (!plugin || Array.isArray(plugin) || typeof plugin !== "object" || typeof plugin.slug !== "string" || plugin.slug.length === 0) {
+						throw new Error("wp-vibecoder.json plugin dependencies must be objects with a slug");
+					}
+				}
+			}
+			if (data.pages !== undefined) {
+				if (!Array.isArray(data.pages)) {
+					throw new Error("wp-vibecoder.json pages must be an array");
+				}
+				const slugs = new Set();
+				for (const page of data.pages) {
+					if (!page || Array.isArray(page) || typeof page !== "object" || typeof page.title !== "string" || page.title.length === 0 || typeof page.slug !== "string" || page.slug.length === 0) {
+						throw new Error("wp-vibecoder.json pages must be objects with title and slug");
+					}
+					if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(page.slug) || page.slug === "home") {
+						throw new Error("wp-vibecoder.json page slugs must be lowercase URL slugs and must not be home");
+					}
+					if (slugs.has(page.slug)) {
+						throw new Error("wp-vibecoder.json pages must use unique slugs");
+					}
+					slugs.add(page.slug);
+					if (page.status !== undefined && !["publish", "draft", "private"].includes(page.status)) {
+						throw new Error("wp-vibecoder.json page status must be publish, draft, or private");
+					}
+					if (page.content !== undefined && typeof page.content !== "string") {
+						throw new Error("wp-vibecoder.json page content must be a string when provided");
+					}
+					if (page.excerpt !== undefined && typeof page.excerpt !== "string") {
+						throw new Error("wp-vibecoder.json page excerpt must be a string when provided");
+					}
+					if (page.template) {
+						if (typeof page.template !== "string" || page.template.includes("..") || !page.template.endsWith(".php") || !fs.existsSync(path.join(themeDir, page.template))) {
+							throw new Error("wp-vibecoder.json page templates must reference PHP files inside the theme folder");
+						}
+					}
+				}
+			}
+		' "${CONFIG_FILE}" "${THEME_DIR}" ||
 			fail "Invalid wp-vibecoder.json"
 	elif command -v python3 >/dev/null 2>&1; then
-		python3 -m json.tool "${CONFIG_FILE}" >/dev/null || fail "Invalid wp-vibecoder.json"
+		python3 - "${CONFIG_FILE}" "${THEME_DIR}" <<'PY' || fail "Invalid wp-vibecoder.json"
+import json
+import os
+import re
+import sys
+
+with open(sys.argv[1], encoding="utf-8") as fh:
+    data = json.load(fh)
+theme_dir = sys.argv[2]
+
+plugins = data.get("requires", {}).get("plugins")
+if plugins is not None:
+    if not isinstance(plugins, list):
+        raise SystemExit("wp-vibecoder.json requires.plugins must be an array")
+    for plugin in plugins:
+        if not isinstance(plugin, dict) or not isinstance(plugin.get("slug"), str) or not plugin["slug"]:
+            raise SystemExit("wp-vibecoder.json plugin dependencies must be objects with a slug")
+
+pages = data.get("pages")
+if pages is not None:
+    if not isinstance(pages, list):
+        raise SystemExit("wp-vibecoder.json pages must be an array")
+    slugs = set()
+    for page in pages:
+        if not isinstance(page, dict) or not isinstance(page.get("title"), str) or not page["title"] or not isinstance(page.get("slug"), str) or not page["slug"]:
+            raise SystemExit("wp-vibecoder.json pages must be objects with title and slug")
+        if not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", page["slug"]) or page["slug"] == "home":
+            raise SystemExit("wp-vibecoder.json page slugs must be lowercase URL slugs and must not be home")
+        if page["slug"] in slugs:
+            raise SystemExit("wp-vibecoder.json pages must use unique slugs")
+        slugs.add(page["slug"])
+        if "status" in page and page["status"] not in ("publish", "draft", "private"):
+            raise SystemExit("wp-vibecoder.json page status must be publish, draft, or private")
+        if "content" in page and not isinstance(page["content"], str):
+            raise SystemExit("wp-vibecoder.json page content must be a string when provided")
+        if "excerpt" in page and not isinstance(page["excerpt"], str):
+            raise SystemExit("wp-vibecoder.json page excerpt must be a string when provided")
+        if page.get("template"):
+            template = page["template"]
+            if not isinstance(template, str) or ".." in template or not template.endswith(".php") or not os.path.isfile(os.path.join(theme_dir, template)):
+                raise SystemExit("wp-vibecoder.json page templates must reference PHP files inside the theme folder")
+PY
 	else
 		warn "Neither Node.js nor Python is available; JSON syntax validation was skipped."
 	fi

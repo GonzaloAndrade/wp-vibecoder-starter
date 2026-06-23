@@ -78,6 +78,25 @@ For example:
 - “Create a Services page” creates `/services` and uses `page.php` or
   `page-services.php` when necessary.
 
+Dedicated pages must also be declared in `wp-vibecoder.json` so WP Vibecoder
+creates or updates the corresponding WordPress page during sync. Do not declare
+`Home`; it is managed separately.
+
+Example:
+
+```json
+{
+  "pages": [
+    {
+      "title": "Contact",
+      "slug": "contact",
+      "template": "page-contact.php",
+      "status": "publish"
+    }
+  ]
+}
+```
+
 Do not place layouts for dedicated internal pages inside `page-home.php`.
 
 ## WordPress theme screenshot
@@ -218,8 +237,14 @@ Example:
 
 ```json
 {
-  "name": "Advanced Custom Fields",
-  "slug": "advanced-custom-fields",
-  "required": false
+  "requires": {
+    "plugins": [
+      {
+        "name": "Advanced Custom Fields",
+        "slug": "advanced-custom-fields",
+        "required": false
+      }
+    ]
+  }
 }
 ```

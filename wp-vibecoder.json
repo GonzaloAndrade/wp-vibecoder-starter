@@ -3,6 +3,7 @@
   "starter": "base",
   "version": "1.0",
   "themeFolder": "theme",
+  "pages": [],
   "requires": {
     "wordpress": ">=6.0",
     "plugins": []

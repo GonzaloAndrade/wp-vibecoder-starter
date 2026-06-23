@@ -14,6 +14,7 @@ This repository is a WordPress theme project synchronized by WP Vibecoder.
 - Never modify WordPress core files.
 - Use WordPress APIs, template hierarchy, escaping functions, and enqueue APIs.
 - Use Advanced Custom Fields only when editable content explicitly requires it.
+- When ACF is used, declare it in `wp-vibecoder.json` under `requires.plugins` as an object with `name`, `slug`, and `required`; do not use a plain string entry.
 - Do not invent or reference helper functions that do not exist.
 - Verify every referenced function and asset exists.
 - Escape output and sanitize input according to WordPress coding practices.
@@ -98,6 +99,9 @@ WP Vibecoder follows a page-first architecture.
 - Use `page-{slug}.php` only when that page requires a unique layout.
 - Do not place internal page layouts inside `page-home.php`.
 - Do not create additional pages unless a dedicated URL is required.
+- When creating a dedicated page, add it to `wp-vibecoder.json` under `pages` so WP Vibecoder creates or updates the WordPress page during sync.
+- Do not add `Home` to `pages`; WP Vibecoder manages the homepage separately.
+- Page declarations use lowercase URL slugs and may reference a template file.
 
 Examples:
 
@@ -105,6 +109,17 @@ Examples:
 - “Add a FAQ section” → modify `page-home.php`.
 - “Create a Contact page” → create page `Contact` with slug `contact`; use `page.php` or `page-contact.php`.
 - “Create a Services page” → create page `Services` with slug `services`; use `page.php` or `page-services.php`.
+
+Example `wp-vibecoder.json` page declaration:
+
+```json
+{
+  "title": "Contact",
+  "slug": "contact",
+  "template": "page-contact.php",
+  "status": "publish"
+}
+```
 
 ## Completion checklist
 
@@ -121,4 +136,5 @@ Examples:
 11. The theme was checked in WordPress, not only in `/preview`.
 12. If WordPress validation was unavailable, state this explicitly and list what was validated instead.
 13. All provisional brand and contact data is disclosed in the completion report.
-14. `wp-vibecoder.json` reflects any added plugin dependency.
+14. `wp-vibecoder.json` reflects any added dedicated page in `pages`.
+15. `wp-vibecoder.json` reflects any added plugin dependency using object entries such as `{ "name": "Advanced Custom Fields", "slug": "advanced-custom-fields", "required": false }`.
