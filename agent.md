@@ -14,8 +14,7 @@ This repository is a WordPress theme project synchronized by WP Vibecoder.
 - If Chrome or Chromium cannot generate a screenshot, keep or restore the bundled default WP Vibecoder screenshot and report the exact reason screenshot generation was skipped.
 - Never modify WordPress core files.
 - Use WordPress APIs, template hierarchy, escaping functions, and enqueue APIs.
-- Use Advanced Custom Fields only when editable content explicitly requires it.
-- When ACF is used, declare it in `wp-vibecoder.json` under `requires.plugins` as an object with `name`, `slug`, and `required`; do not use a plain string entry.
+- Do not add Advanced Custom Fields. ACF support is reserved for a future WP Vibecoder Pro workflow.
 - Do not invent or reference helper functions that do not exist.
 - Verify every referenced function and asset exists.
 - Escape output and sanitize input according to WordPress coding practices.
@@ -75,7 +74,7 @@ This repository is a WordPress theme project synchronized by WP Vibecoder.
 - WP Vibecoder routes the managed front page to `page-home.php`; do not rely on the page slug for template loading.
 - When modifying the homepage, edit `page-home.php`.
 - Keep the WP Vibecoder Home page content editor empty.
-- The WP Vibecoder Home page exists for SEO, metadata, OpenGraph, ACF, Gutenberg compatibility, previews, revisions, and future CMS features.
+- The WP Vibecoder Home page exists for SEO, metadata, OpenGraph, Gutenberg compatibility, previews, revisions, and future CMS features.
 - Do not use the WP Vibecoder Home page content editor for homepage layout.
 - Do not use `front-page.php`.
 - Do not place homepage layout in `index.php`.
@@ -134,11 +133,10 @@ Example `wp-vibecoder.json` page declaration:
 5. `theme/screenshot.png` is a valid 1200×900 PNG and was regenerated after visual changes, or screenshot generation was explicitly reported as unavailable.
 6. The assigned WP Vibecoder Home page content remains empty.
 7. No `front-page.php` or `home.php` was introduced.
-8. Every referenced function, template, script, stylesheet, image, and ACF field exists.
+8. Every referenced function, template, script, stylesheet, and image exists.
 9. PHP syntax and repository validation pass with `./scripts/validate.sh`.
 10. The final homepage design is represented in `/preview` when the task changed it visually.
 11. The theme was checked in WordPress, not only in `/preview`.
 12. If WordPress validation was unavailable, state this explicitly and list what was validated instead.
 13. All provisional brand and contact data is disclosed in the completion report.
 14. `wp-vibecoder.json` reflects any added dedicated page in `pages`.
-15. `wp-vibecoder.json` reflects any added plugin dependency using object entries such as `{ "name": "Advanced Custom Fields", "slug": "advanced-custom-fields", "required": false }`.

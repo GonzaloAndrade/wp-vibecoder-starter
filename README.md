@@ -1,6 +1,63 @@
-# WP Vibecoder Starter
+<p align="center">
+  <img src="assets/wp-vibecoder-mark.svg" alt="WP Vibecoder" width="88" height="88">
+</p>
 
-Minimal starter for corporate websites and landing pages synchronized with WP Vibecoder.
+<h1 align="center">WP Vibecoder Starter</h1>
+
+<p align="center">
+  A clean WordPress theme starter built for AI-assisted development and safe syncs with WP Vibecoder.
+</p>
+
+<p align="center">
+  <a href="https://wpvibecoder.com">Download WP Vibecoder</a>
+  ·
+  <a href="#quick-start">Quick start</a>
+  ·
+  <a href="#structure">Structure</a>
+  ·
+  <a href="#validation">Validation</a>
+</p>
+
+<p align="center">
+  <img alt="WordPress" src="https://img.shields.io/badge/WordPress-%3E%3D%206.0-3858e9">
+  <img alt="Version" src="https://img.shields.io/badge/version-1.0-111827">
+  <img alt="AI agent ready" src="https://img.shields.io/badge/AI%20agent-ready-6d5dfc">
+  <img alt="GitHub workflow" src="https://img.shields.io/badge/GitHub-workflow-16a34a">
+</p>
+
+## What is this?
+
+This is the base starter template for projects managed by the **WP Vibecoder**
+plugin. The plugin can be downloaded from [wpvibecoder.com](https://wpvibecoder.com).
+
+The starter gives Codex, Claude Code, Cursor, and other AI coding agents a
+predictable WordPress theme structure. You clone this template, push your work
+to a GitHub branch, connect the repository in WP Vibecoder, validate it, and
+sync the finished theme into WordPress.
+
+If this starter helps your workflow, consider giving the repository a star on
+GitHub. It helps other WordPress builders discover the project.
+
+## Why use it?
+
+- **Agent-ready instructions:** `agent.md`, `AGENTS.md`, and `CLAUDE.md` explain the expected project structure.
+- **WordPress-native theme files:** production code lives in `theme/`.
+- **Fast static preview:** `preview/` gives AI agents a quick place to mirror visual changes.
+- **Managed homepage convention:** `theme/page-home.php` powers the front page while preserving WordPress page compatibility.
+- **Sync validation:** `scripts/validate.sh` checks the project before it is synced by WP Vibecoder.
+- **Theme screenshot workflow:** `scripts/generate-theme-screenshot.sh` keeps `theme/screenshot.png` ready for WordPress.
+
+## Quick start
+
+1. Use this repository as a GitHub template or clone it into a new repository.
+2. Create a working branch for your site or theme changes.
+3. Open the repository with Codex, Claude Code, Cursor, or your preferred AI coding agent.
+4. Ask the agent to follow `agent.md`.
+5. Run `./scripts/validate.sh`.
+6. Push the branch to GitHub.
+7. Install WP Vibecoder from [wpvibecoder.com](https://wpvibecoder.com).
+8. Connect this repository and branch in WP Vibecoder.
+9. Validate and sync the theme from WordPress.
 
 ## Before uploading
 
@@ -23,6 +80,7 @@ Do not upload the containing `wp-vibecoder-starter` folder as an extra nested di
 ├── CLAUDE.md
 ├── wp-vibecoder.json
 ├── assets/
+│   ├── wp-vibecoder-mark.svg
 │   └── wp-vibecoder-default-screenshot.png
 ├── theme/
 │   ├── style.css
@@ -48,12 +106,12 @@ static front page under **Settings > Reading**. The site root `/` is rendered
 through `theme/page-home.php`; WP Vibecoder routes the managed front page to
 that template independently of the page slug.
 
-Codex must edit `page-home.php` for every landing-page or corporate-homepage
+Codex must edit `page-home.php` for every landing-page or homepage
 change. Never build the homepage layout in the WP Vibecoder Home page content
 editor. Do not use `front-page.php`, do not put the homepage layout in
 `index.php`, and do not add `home.php` in V1.
 
-The WP Vibecoder Home page supports SEO plugins, metadata, OpenGraph, ACF, Gutenberg,
+The WP Vibecoder Home page supports SEO plugins, metadata, OpenGraph, Gutenberg,
 previews, revisions, future CMS features, and WordPress `page_on_front`
 compatibility.
 
@@ -245,26 +303,7 @@ prefix, package namespace, and asset handles remain stable. This avoids
 unnecessary compatibility problems. Rename technical identifiers only when
 explicitly requested and update every reference consistently.
 
-## ACF
+## V1 exclusions
 
-This starter does not require ACF. If the project begins using ACF:
-
-- Add the dependency to `wp-vibecoder.json`.
-- Set `"required": true` only if the theme cannot operate without ACF.
-- Add any required implementation explicitly; ACF structure is not scaffolded in V1.
-
-Example:
-
-```json
-{
-  "requires": {
-    "plugins": [
-      {
-        "name": "Advanced Custom Fields",
-        "slug": "advanced-custom-fields",
-        "required": false
-      }
-    ]
-  }
-}
-```
+ACF integration is reserved for a future WP Vibecoder Pro workflow. Do not add
+ACF fields, `acf-json`, or ACF plugin requirements to V1 starter projects.
