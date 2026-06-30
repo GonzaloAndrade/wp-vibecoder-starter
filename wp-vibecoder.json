@@ -1,9 +1,16 @@
 {
-  "name": "WP Vibecoder Starter",
+  "name": "WP Vibecoder",
   "starter": "base",
   "version": "1.0",
   "themeFolder": "theme",
-  "pages": [],
+  "pages": [
+    {
+      "title": "Privacy Policy",
+      "slug": "privacy-policy",
+      "template": "page-privacy-policy.php",
+      "status": "publish"
+    }
+  ],
   "requires": {
     "wordpress": ">=6.0",
     "plugins": []
