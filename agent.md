@@ -124,6 +124,61 @@ Example `wp-vibecoder.json` page declaration:
 }
 ```
 
+<!-- WPVIBECODER:MANAGED-FORMS START v1 -->
+## Managed Forms
+
+When the user asks for a contact form, newsletter signup, lead capture form, or
+similar submission workflow, do not build theme-side `POST` handlers and do not
+hardcode third-party form IDs in templates. Declare the form in
+`wp-vibecoder.json` and render it through WP Vibecoder.
+
+V1 managed forms use Fluent Forms. The target WordPress site must have the
+`fluentform` plugin installed and active before sync. WP Vibecoder creates or
+updates declared Fluent Forms forms and stores the provider form id internally.
+
+Example `wp-vibecoder.json` form declaration:
+
+```json
+{
+  "requires": {
+    "plugins": [
+      {
+        "slug": "fluentform",
+        "required": true,
+        "minVersion": "6.1",
+        "maxTestedVersion": "6.x"
+      }
+    ]
+  },
+  "forms": [
+    {
+      "id": "contact",
+      "provider": "fluent-forms",
+      "title": "Contact",
+      "type": "contact",
+      "fields": [
+        { "name": "name", "type": "text", "label": "Name", "required": true },
+        { "name": "email", "type": "email", "label": "Email", "required": true },
+        { "name": "message", "type": "textarea", "label": "Message", "required": true }
+      ],
+      "submitLabel": "Send"
+    }
+  ]
+}
+```
+
+Render a declared form from a theme template with:
+
+```php
+<?php echo function_exists( 'wpv_render_form' ) ? wpv_render_form( 'contact' ) : ''; ?>
+```
+
+Supported V1 field types are `text`, `email`, `textarea`, and `tel`. Use
+`type: "newsletter"` for a simple email capture form. Submissions are managed
+by Fluent Forms entries; external email marketing integrations are not declared
+unless WP Vibecoder explicitly supports that provider.
+<!-- WPVIBECODER:MANAGED-FORMS END -->
+
 ## Completion checklist
 
 1. The production implementation is in `/theme`.
@@ -140,3 +195,4 @@ Example `wp-vibecoder.json` page declaration:
 12. If WordPress validation was unavailable, state this explicitly and list what was validated instead.
 13. All provisional brand and contact data is disclosed in the completion report.
 14. `wp-vibecoder.json` reflects any added dedicated page in `pages`.
+15. `wp-vibecoder.json` reflects any requested forms in `forms`, with `fluentform` declared under `requires.plugins`.

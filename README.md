@@ -170,6 +170,70 @@ Example:
 
 Do not place layouts for dedicated internal pages inside `page-home.php`.
 
+## Managed forms
+
+Use managed forms when a project needs a contact form, newsletter signup, lead
+capture form, or similar submission workflow. Do not add custom `POST`
+processing to the theme and do not hardcode provider-specific form IDs.
+
+V1 managed forms use Fluent Forms. Declare the dependency and form in
+`wp-vibecoder.json`; WP Vibecoder creates or updates the Fluent Forms form
+during sync and stores the provider form ID internally.
+
+Example:
+
+```json
+{
+  "requires": {
+    "plugins": [
+      {
+        "slug": "fluentform",
+        "required": true,
+        "minVersion": "6.1",
+        "maxTestedVersion": "6.x"
+      }
+    ]
+  },
+  "forms": [
+    {
+      "id": "newsletter",
+      "provider": "fluent-forms",
+      "title": "Newsletter Signup",
+      "type": "newsletter",
+      "fields": [
+        { "name": "email", "type": "email", "label": "Email", "required": true }
+      ],
+      "submitLabel": "Subscribe"
+    }
+  ]
+}
+```
+
+Render the form in a theme template with:
+
+```php
+<?php echo function_exists( 'wpv_render_form' ) ? wpv_render_form( 'newsletter' ) : ''; ?>
+```
+
+Supported V1 field types are `text`, `email`, `textarea`, and `tel`.
+Submissions are stored and managed by Fluent Forms entries. External newsletter
+or CRM integrations require explicit WP Vibecoder provider support.
+
+## Agent instructions
+
+`agent.md` contains WP Vibecoder-managed instruction blocks marked with comments
+such as:
+
+```md
+<!-- WPVIBECODER:MANAGED-FORMS START v1 -->
+...
+<!-- WPVIBECODER:MANAGED-FORMS END -->
+```
+
+Keep these markers intact. The WP Vibecoder plugin uses them to detect whether a
+repository's agent instructions are compatible with the installed plugin version
+and can open a pull request to update outdated blocks.
+
 ## WordPress theme screenshot
 
 WordPress displays `theme/screenshot.png` in **Appearance > Themes**. The

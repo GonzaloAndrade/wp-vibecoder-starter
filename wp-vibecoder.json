@@ -4,6 +4,7 @@
   "version": "1.0",
   "themeFolder": "theme",
   "pages": [],
+  "forms": [],
   "requires": {
     "wordpress": ">=6.0",
     "plugins": []
