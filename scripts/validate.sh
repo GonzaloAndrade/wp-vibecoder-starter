@@ -65,6 +65,73 @@ if command -v php >/dev/null 2>&1; then
 					fwrite(STDERR, "wp-vibecoder.json plugin dependencies must be objects with a slug\n");
 					exit(1);
 				}
+				foreach (array("minVersion", "maxTestedVersion") as $versionKey) {
+					if (isset($plugin[$versionKey]) && (!is_string($plugin[$versionKey]) || !preg_match("/^[0-9]+(?:\\.[0-9x]+)*$/i", $plugin[$versionKey]))) {
+						fwrite(STDERR, "wp-vibecoder.json plugin dependency versions must be version strings such as 6.1 or 6.x\n");
+						exit(1);
+					}
+				}
+			}
+		}
+		if (isset($data["forms"])) {
+			if (!is_array($data["forms"])) {
+				fwrite(STDERR, "wp-vibecoder.json forms must be an array\n");
+				exit(1);
+			}
+			$pluginSlugs = array();
+			foreach (($data["requires"]["plugins"] ?? array()) as $plugin) {
+				if (is_array($plugin) && !empty($plugin["slug"])) {
+					$pluginSlugs[$plugin["slug"]] = true;
+				}
+			}
+			$formIds = array();
+			foreach ($data["forms"] as $form) {
+				if (!is_array($form) || empty($form["id"]) || !is_string($form["id"])) {
+					fwrite(STDERR, "wp-vibecoder.json forms must be objects with an id\n");
+					exit(1);
+				}
+				if (!preg_match("/^[a-z0-9_-]+$/", $form["id"])) {
+					fwrite(STDERR, "wp-vibecoder.json form ids must be lowercase keys using letters, numbers, underscores, or hyphens\n");
+					exit(1);
+				}
+				if (isset($formIds[$form["id"]])) {
+					fwrite(STDERR, "wp-vibecoder.json forms must use unique ids\n");
+					exit(1);
+				}
+				$formIds[$form["id"]] = true;
+				$provider = strtolower(trim((string)($form["provider"] ?? "")));
+				if (!in_array($provider, array("fluent-forms", "fluentform", "fluent_forms"), true)) {
+					fwrite(STDERR, "wp-vibecoder.json forms currently support provider fluent-forms only\n");
+					exit(1);
+				}
+				if (empty($pluginSlugs["fluentform"])) {
+					fwrite(STDERR, "wp-vibecoder.json forms using provider fluent-forms must declare requires.plugins with slug fluentform\n");
+					exit(1);
+				}
+				if (isset($form["type"]) && !in_array($form["type"], array("contact", "newsletter", "custom"), true)) {
+					fwrite(STDERR, "wp-vibecoder.json form type must be contact, newsletter, or custom\n");
+					exit(1);
+				}
+				if (isset($form["fields"]) && !is_array($form["fields"])) {
+					fwrite(STDERR, "wp-vibecoder.json form fields must be an array\n");
+					exit(1);
+				}
+				$fieldNames = array();
+				foreach (($form["fields"] ?? array()) as $field) {
+					if (!is_array($field) || empty($field["name"]) || !is_string($field["name"]) || !preg_match("/^[a-z0-9_-]+$/", $field["name"])) {
+						fwrite(STDERR, "wp-vibecoder.json form fields must be objects with lowercase name keys\n");
+						exit(1);
+					}
+					if (isset($fieldNames[$field["name"]])) {
+						fwrite(STDERR, "wp-vibecoder.json form fields must use unique names inside each form\n");
+						exit(1);
+					}
+					$fieldNames[$field["name"]] = true;
+					if (isset($field["type"]) && !in_array($field["type"], array("text", "email", "textarea", "tel"), true)) {
+						fwrite(STDERR, "wp-vibecoder.json form field type must be text, email, textarea, or tel\n");
+						exit(1);
+					}
+				}
 			}
 		}
 		if (isset($data["pages"])) {
@@ -124,13 +191,60 @@ else
 			const data = JSON.parse(fs.readFileSync(process.argv[1], "utf8"));
 			const themeDir = process.argv[2];
 			const plugins = data && data.requires && data.requires.plugins;
-			if (plugins !== undefined) {
-				if (!Array.isArray(plugins)) {
-					throw new Error("wp-vibecoder.json requires.plugins must be an array");
+				if (plugins !== undefined) {
+					if (!Array.isArray(plugins)) {
+						throw new Error("wp-vibecoder.json requires.plugins must be an array");
+					}
+					for (const plugin of plugins) {
+						if (!plugin || Array.isArray(plugin) || typeof plugin !== "object" || typeof plugin.slug !== "string" || plugin.slug.length === 0) {
+							throw new Error("wp-vibecoder.json plugin dependencies must be objects with a slug");
+						}
+						for (const key of ["minVersion", "maxTestedVersion"]) {
+							if (plugin[key] !== undefined && (typeof plugin[key] !== "string" || !/^[0-9]+(?:\.[0-9x]+)*$/i.test(plugin[key]))) {
+								throw new Error("wp-vibecoder.json plugin dependency versions must be version strings such as 6.1 or 6.x");
+							}
+						}
+					}
 				}
-				for (const plugin of plugins) {
-					if (!plugin || Array.isArray(plugin) || typeof plugin !== "object" || typeof plugin.slug !== "string" || plugin.slug.length === 0) {
-						throw new Error("wp-vibecoder.json plugin dependencies must be objects with a slug");
+				if (data.forms !== undefined) {
+				if (!Array.isArray(data.forms)) {
+					throw new Error("wp-vibecoder.json forms must be an array");
+				}
+				const pluginSlugs = new Set((plugins || []).map((plugin) => plugin && plugin.slug).filter(Boolean));
+				const formIds = new Set();
+				for (const form of data.forms) {
+					if (!form || Array.isArray(form) || typeof form !== "object" || typeof form.id !== "string" || !/^[a-z0-9_-]+$/.test(form.id)) {
+						throw new Error("wp-vibecoder.json forms must be objects with lowercase id keys");
+					}
+					if (formIds.has(form.id)) {
+						throw new Error("wp-vibecoder.json forms must use unique ids");
+					}
+					formIds.add(form.id);
+					const provider = String(form.provider || "").toLowerCase().trim();
+					if (!["fluent-forms", "fluentform", "fluent_forms"].includes(provider)) {
+						throw new Error("wp-vibecoder.json forms currently support provider fluent-forms only");
+					}
+					if (!pluginSlugs.has("fluentform")) {
+						throw new Error("wp-vibecoder.json forms using provider fluent-forms must declare requires.plugins with slug fluentform");
+					}
+					if (form.type !== undefined && !["contact", "newsletter", "custom"].includes(form.type)) {
+						throw new Error("wp-vibecoder.json form type must be contact, newsletter, or custom");
+					}
+					if (form.fields !== undefined && !Array.isArray(form.fields)) {
+						throw new Error("wp-vibecoder.json form fields must be an array");
+					}
+					const fieldNames = new Set();
+					for (const field of form.fields || []) {
+						if (!field || Array.isArray(field) || typeof field !== "object" || typeof field.name !== "string" || !/^[a-z0-9_-]+$/.test(field.name)) {
+							throw new Error("wp-vibecoder.json form fields must be objects with lowercase name keys");
+						}
+						if (fieldNames.has(field.name)) {
+							throw new Error("wp-vibecoder.json form fields must use unique names inside each form");
+						}
+						fieldNames.add(field.name);
+						if (field.type !== undefined && !["text", "email", "textarea", "tel"].includes(field.type)) {
+							throw new Error("wp-vibecoder.json form field type must be text, email, textarea, or tel");
+						}
 					}
 				}
 			}
@@ -189,6 +303,40 @@ if plugins is not None:
     for plugin in plugins:
         if not isinstance(plugin, dict) or not isinstance(plugin.get("slug"), str) or not plugin["slug"]:
             raise SystemExit("wp-vibecoder.json plugin dependencies must be objects with a slug")
+        for version_key in ("minVersion", "maxTestedVersion"):
+            if version_key in plugin and (not isinstance(plugin[version_key], str) or not re.fullmatch(r"[0-9]+(?:\.[0-9x]+)*", plugin[version_key], re.IGNORECASE)):
+                raise SystemExit("wp-vibecoder.json plugin dependency versions must be version strings such as 6.1 or 6.x")
+
+forms = data.get("forms")
+if forms is not None:
+    if not isinstance(forms, list):
+        raise SystemExit("wp-vibecoder.json forms must be an array")
+    plugin_slugs = {plugin.get("slug") for plugin in (plugins or []) if isinstance(plugin, dict)}
+    form_ids = set()
+    for form in forms:
+        if not isinstance(form, dict) or not isinstance(form.get("id"), str) or not re.fullmatch(r"[a-z0-9_-]+", form["id"]):
+            raise SystemExit("wp-vibecoder.json forms must be objects with lowercase id keys")
+        if form["id"] in form_ids:
+            raise SystemExit("wp-vibecoder.json forms must use unique ids")
+        form_ids.add(form["id"])
+        provider = str(form.get("provider", "")).lower().strip()
+        if provider not in ("fluent-forms", "fluentform", "fluent_forms"):
+            raise SystemExit("wp-vibecoder.json forms currently support provider fluent-forms only")
+        if "fluentform" not in plugin_slugs:
+            raise SystemExit("wp-vibecoder.json forms using provider fluent-forms must declare requires.plugins with slug fluentform")
+        if "type" in form and form["type"] not in ("contact", "newsletter", "custom"):
+            raise SystemExit("wp-vibecoder.json form type must be contact, newsletter, or custom")
+        if "fields" in form and not isinstance(form["fields"], list):
+            raise SystemExit("wp-vibecoder.json form fields must be an array")
+        field_names = set()
+        for field in form.get("fields", []):
+            if not isinstance(field, dict) or not isinstance(field.get("name"), str) or not re.fullmatch(r"[a-z0-9_-]+", field["name"]):
+                raise SystemExit("wp-vibecoder.json form fields must be objects with lowercase name keys")
+            if field["name"] in field_names:
+                raise SystemExit("wp-vibecoder.json form fields must use unique names inside each form")
+            field_names.add(field["name"])
+            if "type" in field and field["type"] not in ("text", "email", "textarea", "tel"):
+                raise SystemExit("wp-vibecoder.json form field type must be text, email, textarea, or tel")
 
 pages = data.get("pages")
 if pages is not None:
