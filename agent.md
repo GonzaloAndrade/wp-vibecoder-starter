@@ -19,7 +19,7 @@ This repository is a WordPress theme project synchronized by WP Vibecoder.
 - Verify every referenced function and asset exists.
 - Escape output and sanitize input according to WordPress coding practices.
 - Validate PHP syntax before completing work.
-- Perform final visual validation in a real local WordPress installation.
+- When a local WordPress installation is available, perform final visual validation there.
 - LocalWP is recommended but is not a dependency.
 - After any visual change that affects the homepage, preview, theme branding, layout, or first-screen appearance, run `./scripts/generate-theme-screenshot.sh` before completion so `theme/screenshot.png` reflects the delivered design.
 - The WordPress theme screenshot must be a 1200×900 PNG.
@@ -90,39 +90,10 @@ This repository is a WordPress theme project synchronized by WP Vibecoder.
 
 ## Page Creation Convention
 
-WP Vibecoder follows a page-first architecture.
-
-- Landing-page sections belong in `page-home.php`.
-- Hero, About, Services, Testimonials, FAQ, Contact, Pricing, and CTA sections do not require separate WordPress pages.
-- Create a separate WordPress page only when a dedicated URL is explicitly required.
-- Standard dedicated pages use `page.php` by default.
-- Use `page-{slug}.php` only when that page requires a unique layout.
-- Do not place internal page layouts inside `page-home.php`.
-- Do not create additional pages unless a dedicated URL is required.
-- When creating a dedicated page, add it to `wp-vibecoder.json` under `pages` so WP Vibecoder creates or updates the WordPress page during sync.
-- Do not add `Home` to `pages`; WP Vibecoder manages the homepage separately.
-- Page declarations use lowercase URL slugs and may reference a template file.
-- Page declarations must not include `content` or `excerpt`; WP Vibecoder creates pages with an empty editor and preserves manually edited content.
-- Put repository-managed page layout and demo copy in `page.php` or `page-{slug}.php`, not in the WordPress page editor.
-- A `page-{slug}.php` file is a WordPress template hierarchy file and does not need a `Template Name` header. Any other page template referenced in `wp-vibecoder.json` must include a `Template Name` header.
-
-Examples:
-
-- “Add a Services section” → modify `page-home.php`.
-- “Add a FAQ section” → modify `page-home.php`.
-- “Create a Contact page” → create page `Contact` with slug `contact`; use `page.php` or `page-contact.php`.
-- “Create a Services page” → create page `Services` with slug `services`; use `page.php` or `page-services.php`.
-
-Example `wp-vibecoder.json` page declaration:
-
-```json
-{
-  "title": "Contact",
-  "slug": "contact",
-  "template": "page-contact.php",
-  "status": "publish"
-}
-```
+WP Vibecoder follows a page-first architecture. Homepage sections such as
+Services, FAQ, and Contact belong in `theme/page-home.php` unless the user asks
+for a dedicated URL. For a dedicated URL, follow the Native Pages and Subpages
+skill below. For a translated URL, also follow Multilingual Pages.
 
 <!-- WPVIBECODER:MANAGED-FORMS START v1 -->
 ## Managed Forms
@@ -179,20 +150,102 @@ by Fluent Forms entries; external email marketing integrations are not declared
 unless WP Vibecoder explicitly supports that provider.
 <!-- WPVIBECODER:MANAGED-FORMS END -->
 
+<!-- WPVIBECODER:NATIVE-PAGES START v2 -->
+## Native Pages and Subpages
+
+Create a native WordPress page only when the user needs a dedicated URL; a
+section of the homepage belongs in `theme/page-home.php`. Declare each dedicated
+page in `wp-vibecoder.json` under `pages`. Do not declare the managed homepage
+there. Standard pages use `page.php`; use a custom template for a distinct layout.
+
+For a subpage, set `parent` to the full path of another declared page, without
+leading or trailing slashes. Declare every ancestor; JSON order does not matter.
+Each parent and child has its own title, content, status, and permalink.
+
+```json
+{
+  "pages": [
+    { "title": "Treatments", "slug": "treatments", "template": "page-treatments.php" },
+    { "title": "Dermatitis", "slug": "dermatitis", "parent": "treatments", "template": "page-dermatitis.php" }
+  ]
+}
+```
+
+For deeper nesting, use a parent path such as `treatments/skin`. The same leaf
+slug may appear under different parents, but full paths must be unique.
+WordPress pretty permalinks must be enabled for nested URLs.
+
+Do not put `content` or `excerpt` in page declarations. WP Vibecoder creates
+pages with an empty editor and preserves later editor changes. Put layout and
+copy maintained in the repository in the theme template. For content maintained
+in WordPress, use the page editor and make sure its template renders
+`the_content()`. Keep a page as a draft until it has real content in either place.
+The managed homepage is the exception: its editor stays empty.
+
+`page-{slug}.php` follows the WordPress template hierarchy and needs no
+`Template Name` header. Because that name also matches other pages with the
+same leaf slug, use a distinct template with a `Template Name` header for a
+child-specific layout. Any other template named in `wp-vibecoder.json` also
+requires that header.
+<!-- WPVIBECODER:NATIVE-PAGES END -->
+
+<!-- WPVIBECODER:MULTILINGUAL-PAGES START v2 -->
+## Multilingual Pages
+
+Use native WordPress pages for each translated URL. The default language stays
+at `/`; another language uses its code as a parent page, such as `/es/` and
+`/es/contacto/`. Declare default-language dedicated pages under `pages`, then
+translations under `multilingual` in `wp-vibecoder.json`.
+
+Before editing, inspect the current homepage and page templates to identify the
+actual language at `/`; use it for `defaultLanguage`. Do not infer it from the
+requested translation language or from this example. If the primary language
+remains unclear, ask the user.
+
+```json
+{
+  "pages": [{ "title": "Contact", "slug": "contact", "template": "page-contact.php" }],
+  "multilingual": {
+    "defaultLanguage": "en",
+    "languages": [{
+      "code": "es",
+      "home": { "title": "Inicio", "template": "page-home-es.php" },
+      "pages": [{ "source": "contact", "title": "Contacto", "slug": "contacto", "template": "page-contact-es.php" }]
+    }]
+  }
+}
+```
+
+For translated subpages, set `source` to the full default-language path
+(for example `treatments/dermatitis`) and `parent` to the translated parent
+path relative to the language prefix (for example `tratamientos`). Declare the
+translated parent and every ancestor too.
+
+Translate each page's title, visible content, navigation, theme-provided SEO
+metadata, and internal links. Use only documented `wp-vibecoder.json` fields;
+write translated copy in a theme template or the WordPress editor as described
+in Native Pages and Subpages. Translated templates need a `Template Name`
+header. A translation without a template starts as a draft until its editor
+content is ready. Never publish an empty translation or automatically redirect
+by browser language. WordPress pretty permalinks must be enabled.
+
+WP Vibecoder adds reciprocal `hreflang` links and HTML `lang` for published
+translation pairs. WordPress provides native page permalinks, canonical URLs,
+and sitemap entries. Use `wpv_language_urls()` for a language switcher and
+`wpv_current_language()` for language-aware theme links or labels. Only link
+to published translations returned by the helper.
+<!-- WPVIBECODER:MULTILINGUAL-PAGES END -->
+
 ## Completion checklist
 
-1. The production implementation is in `/theme`.
-2. The homepage implementation is in `/theme/page-home.php`.
-3. `style.css` still contains valid `Theme Name` and `Version` headers.
-4. Release versions match across `style.css`, `functions.php`, and `wp-vibecoder.json`.
-5. `theme/screenshot.png` is a valid 1200×900 PNG and was regenerated after visual changes, or screenshot generation was explicitly reported as unavailable.
-6. The assigned WP Vibecoder Home page content remains empty.
-7. No `front-page.php` or `home.php` was introduced.
-8. Every referenced function, template, script, stylesheet, and image exists.
-9. PHP syntax and repository validation pass with `./scripts/validate.sh`.
-10. The final homepage design is represented in `/preview` when the task changed it visually.
-11. The theme was checked in WordPress, not only in `/preview`.
-12. If WordPress validation was unavailable, state this explicitly and list what was validated instead.
-13. All provisional brand and contact data is disclosed in the completion report.
-14. `wp-vibecoder.json` reflects any added dedicated page in `pages`.
-15. `wp-vibecoder.json` reflects any requested forms in `forms`, with `fluentform` declared under `requires.plugins`.
+1. Production changes are in `/theme`; a visual homepage change is also reflected in `/preview`.
+2. The managed homepage uses `theme/page-home.php`, has an empty editor, and no `front-page.php` or `home.php` was introduced.
+3. `style.css` has valid `Theme Name` and `Version` headers; release versions match `functions.php` and `wp-vibecoder.json`.
+4. Every referenced function, template, script, stylesheet, and image exists; PHP syntax and `./scripts/validate.sh` pass.
+5. After visual changes, `theme/screenshot.png` is a regenerated 1200×900 PNG, or the unavailable check is reported.
+6. WordPress visual and URL checks were performed when a local installation was available; otherwise report what was checked.
+7. Provisional brand and contact details are disclosed in the completion report.
+8. Each dedicated page is declared under `pages`; every subpage has a declared parent path and its own real content before publication.
+9. Each requested form is declared under `forms`, with `fluentform` in `requires.plugins`.
+10. For multilingual work, `defaultLanguage` matches the language at `/`; each translated `source` and `parent` resolves to the intended pages.
+11. Published translations have translated content, navigation and links; language switcher URLs, `hreflang`, and `lang` match the published language pages.
